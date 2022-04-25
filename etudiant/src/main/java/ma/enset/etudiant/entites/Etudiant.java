@@ -3,21 +3,28 @@ package ma.enset.etudiant.entites;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ma.enset.etudiant.resourse.Genre;
+import ma.enset.etudiant.entites.Genre;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Date;
-@Entity
+
 @Data @AllArgsConstructor @NoArgsConstructor
+@Entity
 public class Etudiant {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String nome;
+    @Size(min = 3,max = 25)
+    private String nom;
+    @Size(min = 3,max = 25)
     private String prenom;
     private String email;
     @Temporal(TemporalType.DATE)
-    private Date dateDeNeaissance;
-    @Enumerated(EnumType.STRING)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @Column(name = "date_naissance")
+    private Date dateNaissance;
     private Genre genre;
-    private boolean regle;
+    private boolean enRegle;
 }

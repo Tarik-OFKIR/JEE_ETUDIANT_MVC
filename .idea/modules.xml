@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/JEE_ETUDIANT_MVC.iml" filepath="$PROJECT_DIR$/.idea/JEE_ETUDIANT_MVC.iml" />
+      <module fileurl="file://$PROJECT_DIR$/etudiant/etudiant.iml" filepath="$PROJECT_DIR$/etudiant/etudiant.iml" />
+    </modules>
+  </component>
+</project>

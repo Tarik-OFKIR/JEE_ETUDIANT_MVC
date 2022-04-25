@@ -1,10 +1,9 @@
 package ma.enset.etudiant.web;
 
+
 import lombok.AllArgsConstructor;
-import javax.validation.Valid;
 import ma.enset.etudiant.entites.Etudiant;
-import ma.enset.etudiant.repositories.EtudaintRepossitory;
-import ma.enset.etudiant.resourse.Genre;
+import ma.enset.etudiant.service.ServiceEtudiant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -13,78 +12,75 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
-import java.util.List;
+import javax.validation.Valid;
 
-@Controller
 @AllArgsConstructor
+@Controller
 public class EtudiantController {
-    private EtudaintRepossitory etudaintRepossitory;
+    ServiceEtudiant service;
 
-    @GetMapping(path = "/etudiant/index")
-    public  String etudiants(Model model,
-                             @RequestParam(name = "page",defaultValue = "0") int page,
-                             @RequestParam(name = "size",defaultValue = "5") int size,
-                             @RequestParam(name = "keyword",defaultValue = "") String keyword){
-        Page<Etudiant> etudiantPage = etudaintRepossitory.findByNomeContains(keyword, PageRequest.of(page,size));
-        model.addAttribute("listEtudiant",etudiantPage.getContent());
-        model.addAttribute("pages",new int[etudiantPage.getTotalPages()]);
-        model.addAttribute("currentPage",page);
-        model.addAttribute("keyword",keyword);
-
-        return "etudiant";
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/index";
     }
 
-    @GetMapping("admin/delete")
-    public String deletEtudiant(Model model, @RequestParam(name =  "id",defaultValue = "0")Long id,
-                                @RequestParam(name = "page",defaultValue = "0") int page,
-                                @RequestParam(name = "keyword",defaultValue = "")String keyword){
-        return "redirect:/etudiant/index?page="+page+"&keyword="+keyword;
+    @GetMapping(path = "/index")
+    public String etudiants(Model model, @RequestParam(name = "page", defaultValue = "0") int page,
+                           @RequestParam(name = "size", defaultValue = "5") int size,
+                           @RequestParam(name = "keyword", defaultValue = "") String keyword) {
+        Page<Etudiant> etudiants = service.findByPrenomContains(keyword, PageRequest.of(page, size));
+        model.addAttribute("etudiants", etudiants.getContent());
+        model.addAttribute("Pages", new int[etudiants.getTotalPages()]);
+        model.addAttribute("pageCourant", page);
+        model.addAttribute("keyword", keyword);
+        return "etudiants";
+    }
+
+    /*
+        @DeleteMapping("/admin/delete/{id}")
+        public String supprimerEtudiant(@PathVariable("id") Long id) {
+            service.deleteEtudiantById(id);
+            return "redirect:/index";
+        }
+    */
+
+    @GetMapping(path = "/admin/delete")
+    public String deleteEtudiant(Long id) {
+        service.deleteEtudiantById(id);
+        return "redirect:/index";
+    }
+
+    @GetMapping(path = "/admin/add")
+    public String newEtudiant(Model model) {
+        model.addAttribute("etudiant",new Etudiant());
+        return "add";
     }
 
 
-    @GetMapping( "/")
-    public String home(){return "home";}
 
-    @GetMapping("/etudiant")
-    @ResponseBody
-    public List<Etudiant> Etudiant(){return  etudaintRepossitory.findAll();}
-
-    @GetMapping(path="/admin/formEtudiant")
-    public String formEtudiant(Model model) {
-
-        Etudiant etudiant=new Etudiant(null,"test","test","test",new Date(), Genre.MASCULIN,false);
-        model.addAttribute("etudiant",etudiant);
-        //model.addAttribute("patient",p);
-
-        return "formPatient";
-    }
-
-
-    @PostMapping(path="/amdin/save")
-    public String save(Model model, @Valid Etudiant etudiant, BindingResult bindingResult, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "") String keyword) {
-
+    @PostMapping(path = "/admin/create")
+    public String newAdd(Model model, @Valid Etudiant e, BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
-            return "formEtudiant";
+            return  "add";
         }
-        etudaintRepossitory.save(etudiant);
-
-        return "redirect:/etudiant/index?page="+page+"&keyword="+keyword;
+        service.saveEtudiant(e);
+        return "redirect:/index";
     }
 
-    @GetMapping(path="/admin/editEtudiant")
-    public String editPatient(Model model,Long id,int page,String keyword) {
-        Etudiant etudiant=etudaintRepossitory.findById(id).orElse(null);
-        if(etudiant==null) {
-            throw new RuntimeException("etudiant n'existe pas");
+    @PostMapping(path = "/admin/updateEtudiant")
+    public String updateEtudiant(Model model, @Valid Etudiant e, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()) {
+            return "modification";
         }
-        model.addAttribute("etudiant",etudiant);
-        model.addAttribute("page",page);
-        model.addAttribute("keyword",keyword);
-
-        return "editEtudinat";
+        service.saveEtudiant(e);
+        return "redirect:/index";
     }
 
+    @GetMapping(path = "/admin/update")
+    public String update(Model model, Long id) {
+        Etudiant e = service.findEtudiantById(id);
+        model.addAttribute("etudiant",e);
+        return "modification";
+    }
 }
