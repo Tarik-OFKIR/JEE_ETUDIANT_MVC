@@ -31,7 +31,7 @@
             <td th:text="${e.genre}"></td>
             <td th:text="${e.enRegle}"></td>
             <td sec:authorize="hasAuthority('ADMIN')"><a class="button is-warning is-light"
-                                                    th:href="@{/admin/update(id=${e.id})}">Edite
+                                                    th:href="@{/admin/update(id=${e.id})}">Edit
             </a>
                 <a class="button is-danger is-light" onclick="return confirm('Etes-vous sure ?')"
                    th:href="@{/admin/delete(id=${e.id})}">Delete
